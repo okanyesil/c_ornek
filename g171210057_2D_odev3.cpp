@@ -1,0 +1,132 @@
+/****************************************************************************
+**							SAKARYA ÜNÝVERSÝTESÝ
+**			        BÝLGÝSAYAR VE BÝLÝÞÝM BÝLÝMLERÝ FAKÜLTESÝ
+**						 BÝLGÝSAYAR MÜHENDÝSLÝÐÝ BÖLÜMÜ
+**				           PROGRAMLAMAYA GÝRÝÞÝ DERSÝ
+**
+**				ÖDEV NUMARASI…...:3
+**				ÖÐRENCÝ ADI...............:OKAN YEÞÝLOÐLU
+**				ÖÐRENCÝ NUMARASI.:G171210057
+**				DERS GRUBU…………:2D
+****************************************************************************/
+
+#include <iostream>
+#include <locale.h>
+#include <iomanip>
+using namespace std;
+int kontrol(int satir, int sutun, struct islem);//kayma miktari ve giris matrisinin boyutuna göre islemin yapýlýp yapýlamayacaðýný hesaplar
+void hesapla(struct islem matris);//istenilen iteratif iþlemlerin yapýlmasýný saðlar
+int boyut_x(struct islem);//giris matrisinin  satir boyutunu hesaplayama yarar böylece giris matrisinin boyutu deðiþse bile iþlemler yapýlabilir
+int boyut_y(struct islem matris);//giris matrisinin  sutun boyutunu hesaplayama yarar böylece giris matrisinin boyutu deðiþse bile iþlemler yapýlabilir
+void giris(struct islem matris);//çekirdek matrisinin giriþinin yapýlmasýný saðlar
+int sonuc_X(struct islem);//giriþ matrisi ile çekirdek matrisinin hesaplamasýnýn ardýndan sonuclarýn yazdýrýlacaðý matrisin boyutunu belirler
+int sonuc_Y(struct islem);//giriþ matrisi ile çekirdek matrisinin hesaplamasýnýn ardýndan sonuclarýn yazdýrýlacaðý matrisin boyutunu belirler
+void yazdir(struct islem);//sonuc matrisini yazdýrmaya yarar.
+struct  islem {
+	int giris[5][5] = {
+						3,2,5,1,4,
+						6,2,1,0,7,
+						3,0,0,2,0,
+						1,1,3,2,2,
+						0,3,1,0,0
+	};
+	int kaymaMiktari;
+	float sonuc[100][100];
+	int cekirdek[5][5];
+	int cekirdekBoyut;
+};
+int main() {
+	setlocale(LC_ALL, "turkish");
+	islem matris;//yukarýda tanýmladýðýmýz yapýdan bir degisken türetiyoruz.
+	cout << "çekirdek[m][m] kare matrisi için\nm deðeri giriniz: ";
+	cin >> matris.cekirdekBoyut;
+	cout << "Kayma miktarýný giriniz: ";
+	cin >> matris.kaymaMiktari;
+	if (kontrol(boyut_x(matris), boyut_y(matris), matris)) {
+		giris(matris);
+	}
+	system("pause");
+	return 0;
+}
+void giris(struct islem matris) {//çekirdek matrisinin degerlerinin girilmesine yarar.
+	for (int i = 0; i < matris.cekirdekBoyut; i++) {
+		for (int j = 0; j < matris.cekirdekBoyut; j++) {
+
+			cout << "cekirdek[" << i << "][" << j << "] = ";
+			cin >> matris.cekirdek[i][j];
+		}
+		cout << endl;
+	}
+	hesapla(matris);
+
+}
+int kontrol(int satir, int sutun, struct islem matris) {//satir stun boyut x ve y fonksiyonlarýndan gelen deðerleri alýr
+	if ((satir - matris.cekirdekBoyut) % matris.kaymaMiktari == 0 && (sutun - matris.cekirdekBoyut) % matris.kaymaMiktari == 0) {
+		return 1;
+	}
+	else {
+		cout << "Bu iþlem yapýlamaz..";
+	}
+	return 0;
+}
+void hesapla(struct islem matris) {
+	int a = 0;
+	int b = 0;
+	int counter = 0;
+	float toplam = 0;
+	int q = 0, t = 0;
+	for (int m = 0; m < sonuc_X(matris); m = m + matris.kaymaMiktari) {//satýr kaydýrmak için
+		for (int n = 0; n < sonuc_Y(matris); n = n + matris.kaymaMiktari) {//sütun kaydýrmak için
+			for (int x = 0; x < matris.cekirdekBoyut; x++) {//çekirdek matrisi ile giris matrisinin çarpýmlarýnýn yapýldðý yer
+				for (int y = 0; y < matris.cekirdekBoyut; y++)
+				{
+					toplam = toplam + (matris.giris[x + m][y + n] * matris.cekirdek[x][y]);
+					counter++;
+					if (counter == matris.cekirdekBoyut*matris.cekirdekBoyut) {
+						matris.sonuc[a][b] = toplam;
+						counter = 0;
+						b++;
+						toplam = 0;
+						if (b == sonuc_X(matris)) {
+							b = 0;
+							if (a < sonuc_Y(matris)) {
+								a++;
+								if (b == sonuc_X(matris)
+									) {
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		
+
+		}
+	
+	}
+	yazdir(matris);
+}
+void yazdir(struct islem matris) {
+	for (int i = 0; i < sonuc_Y(matris); i++) {
+		for (int j = 0; j < sonuc_X(matris); j++) {
+			cout << setw(10) << matris.sonuc[i][j] << setw(10);
+		}
+		cout << endl;
+	}
+}
+int boyut_x(struct islem matris) {//giriþ matrisinin boyutunu ögrenme
+	int x = sizeof(matris.giris) / sizeof(matris.giris[0]);//satir
+
+	return x;
+}
+int boyut_y(struct islem matris) {//giris matrisinin satýr degerini ögrenme
+	int y = sizeof(matris.giris[0]) / sizeof(matris.giris[0][0]);//sutun
+	return y;
+}
+int sonuc_X(struct islem matris) {//sutun  sonuc matrisinin boyutunu hesaplama
+	return ((boyut_y(matris) - matris.cekirdekBoyut) / matris.kaymaMiktari) + 1;
+}
+int sonuc_Y(struct islem matris) {//satýr
+	return ((boyut_x(matris) - matris.cekirdekBoyut) / matris.kaymaMiktari) + 1;
+}
